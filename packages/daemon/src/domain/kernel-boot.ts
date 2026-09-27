@@ -29,6 +29,8 @@ export type RuntimeAuthStatus = "ok" | "unavailable";
 export interface RuntimeProbeResult {
   claudeCode: RuntimeAuthStatus;
   codex: RuntimeAuthStatus;
+  /** Optional: Pi can satisfy the kernel gate on Pi-only hosts (no Claude/Codex). */
+  pi?: RuntimeAuthStatus;
 }
 
 export interface KernelBootDeps {
@@ -101,7 +103,8 @@ export async function bootKernelIfNeeded(deps: KernelBootDeps): Promise<KernelBo
   // 3. Probe runtime auth state to pick a variant.
   const probe = await (deps.probeRuntimes ?? defaultProbeRuntimes)();
 
-  if (probe.claudeCode === "unavailable" && probe.codex === "unavailable") {
+  if (probe.claudeCode === "unavailable" && probe.codex === "unavailable"
+      && (probe.pi ?? "unavailable") === "unavailable") {
     const msg = authBlockMessage();
     log("error", msg);
     tracker.setAuthBlocked(msg);
@@ -141,6 +144,7 @@ export function selectVariant(probe: RuntimeProbeResult): string {
   if (probe.claudeCode === "ok" && probe.codex === "ok") return "rig.yaml";
   if (probe.claudeCode === "ok") return "rig-claude-only.yaml";
   if (probe.codex === "ok") return "rig-codex-only.yaml";
+  if ((probe.pi ?? "unavailable") === "ok") return "rig-pi-only.yaml";
   // Caller is expected to short-circuit before reaching here on the
   // both-unavailable path; defensive default keeps the type narrow.
   return "rig.yaml";
@@ -173,7 +177,18 @@ export async function defaultProbeRuntimes(): Promise<RuntimeProbeResult> {
     tryProbe("codex login status"),
   ]);
 
-  return { claudeCode, codex };
+  // Pi can satisfy the kernel gate on hosts that use neither Claude Code nor
+  // Codex. `pi auth check` needs a target, so an explicit provider/model is
+  // read from the environment (e.g. OPENRIG_PI_MODEL=deepseek-ai/DeepSeek-V4.1-Flash
+  // or OPENRIG_PI_PROVIDER=deepinfra). Without a target we cannot prove auth,
+  // so Pi reports unavailable and the existing gate is unchanged.
+  const piModel = process.env["OPENRIG_PI_MODEL"];
+  const piProvider = process.env["OPENRIG_PI_PROVIDER"];
+  const piTarget = piModel ? `--model ${piModel}`
+    : (piProvider ? `--provider ${piProvider}` : "");
+  const pi = piTarget ? await tryProbe(`pi auth check ${piTarget}`) : "unavailable";
+
+  return { claudeCode, codex, pi };
 }
 
 /** Honest 3-part-error message for the auth-block path. Per IMPL-PRD
@@ -181,8 +196,8 @@ export async function defaultProbeRuntimes(): Promise<RuntimeProbeResult> {
 export function authBlockMessage(): string {
   return [
     "Error: Kernel rig cannot boot — no AI runtime is authenticated.",
-    "Reason: Kernel rig requires at least one of Claude Code or Codex authenticated. Both are unavailable.",
-    "Fix: Run `claude auth login` to authenticate Claude Code, OR `codex login` to authenticate Codex. Then run `rig daemon start` (or `rig setup`) again.",
+    "Reason: Kernel rig requires at least one of Claude Code, Codex, or Pi authenticated. All are unavailable.",
+    "Fix: Run `claude auth login`, OR `codex login`, OR configure Pi for a provider and set OPENRIG_PI_MODEL (e.g. deepseek-ai/DeepSeek-V4.1-Flash). Then run `rig daemon start` (or `rig setup`) again.",
   ].join("\n");
 }
 
