@@ -24,6 +24,7 @@ const SHIPPED_VARIANTS = [
   "rig.yaml",
   "rig-claude-only.yaml",
   "rig-codex-only.yaml",
+  "rig-pi-only.yaml",
 ] as const;
 
 const KERNEL_DIR = join(__dirname, "..", "specs", "rigs", "launch", "kernel");

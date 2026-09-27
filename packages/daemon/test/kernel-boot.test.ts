@@ -96,6 +96,7 @@ beforeEach(() => {
   writeFileSync(join(kernelDir, "rig.yaml"), "name: kernel\n");
   writeFileSync(join(kernelDir, "rig-claude-only.yaml"), "name: kernel\n");
   writeFileSync(join(kernelDir, "rig-codex-only.yaml"), "name: kernel\n");
+  writeFileSync(join(kernelDir, "rig-pi-only.yaml"), "name: kernel\n");
 });
 
 afterEach(() => {
@@ -112,6 +113,13 @@ describe("selectVariant — auth-state → variant mapping", () => {
   });
   it("picks rig-codex-only.yaml when only Codex available", () => {
     expect(selectVariant({ claudeCode: "unavailable", codex: "ok" })).toBe("rig-codex-only.yaml");
+  });
+  it("picks rig-pi-only.yaml when only Pi available", () => {
+    expect(selectVariant({ claudeCode: "unavailable", codex: "unavailable", pi: "ok" }))
+      .toBe("rig-pi-only.yaml");
+  });
+  it("prefers claude/codex over Pi when both are available", () => {
+    expect(selectVariant({ claudeCode: "ok", codex: "ok", pi: "ok" })).toBe("rig.yaml");
   });
 });
 
@@ -241,6 +249,14 @@ describe("bootKernelIfNeeded — fire-and-forget bootstrap", () => {
       probeRuntimes: async () => ({ claudeCode: "unavailable", codex: "ok" }),
     }, tmpSpecsDir));
     expect(tracker.getStatus().variant).toBe("rig-codex-only.yaml");
+    tracker.stop();
+  });
+
+  it("uses the pi-only variant when only Pi is authenticated (no Claude/Codex)", async () => {
+    const tracker = await bootKernelIfNeeded(makeBaseDeps({
+      probeRuntimes: async () => ({ claudeCode: "unavailable", codex: "unavailable", pi: "ok" }),
+    }, tmpSpecsDir));
+    expect(tracker.getStatus().variant).toBe("rig-pi-only.yaml");
     tracker.stop();
   });
 });
