@@ -60,11 +60,23 @@ export function describeState(state: ViewState) {
   };
 }
 
+/** Windows named-pipe form of the control endpoint. Node's net server cannot
+ *  `listen()` on a filesystem Unix-socket path on win32 (EACCES); named pipes
+ *  are the supported equivalent and need no mkdir/unlink. */
+function windowsPipePath(instanceId: string): string {
+  return `\\\\.\\pipe\\openrig-tui-${instanceId}`;
+}
+
+function isWindowsNamedPipe(p: string): boolean {
+  return process.platform === "win32" && p.startsWith("\\\\.\\pipe\\");
+}
+
 /** Default socket home follows the shipped OPENRIG_HOME convention
  * (openrig-compat: ~/.openrig), herdr-style env override on top. */
 export function defaultSocketPath(instanceId: string): string {
   const override = process.env["OPENRIG_TUI_SOCKET"];
   if (override) return override;
+  if (process.platform === "win32") return windowsPipePath(instanceId);
   const home = process.env["OPENRIG_HOME"] ?? path.join(os.homedir(), ".openrig");
   return path.join(home, "run", `tui-${instanceId}.sock`);
 }
@@ -83,14 +95,17 @@ export async function createControlSocket(options: {
 }): Promise<ControlSocket> {
   const { socketPath, view, onMutation } = options;
   const currentContext = options.currentContext ?? (() => "standard");
-  const bytes = Buffer.byteLength(socketPath);
-  if (bytes > MAX_SOCKET_PATH_BYTES) {
-    throw new Error(
-      `socket path too long (${bytes} bytes; unix sun_path caps ~104): ${socketPath} — use a short runtime dir (default: $OPENRIG_HOME/run)`,
-    );
+  const isPipe = isWindowsNamedPipe(socketPath);
+  if (!isPipe) {
+    const bytes = Buffer.byteLength(socketPath);
+    if (bytes > MAX_SOCKET_PATH_BYTES) {
+      throw new Error(
+        `socket path too long (${bytes} bytes; unix sun_path caps ~104): ${socketPath} — use a short runtime dir (default: $OPENRIG_HOME/run)`,
+      );
+    }
+    fs.mkdirSync(path.dirname(socketPath), { recursive: true });
+    if (fs.existsSync(socketPath)) fs.unlinkSync(socketPath);
   }
-  fs.mkdirSync(path.dirname(socketPath), { recursive: true });
-  if (fs.existsSync(socketPath)) fs.unlinkSync(socketPath);
 
   const server = net.createServer((conn) => {
     let buf = "";
@@ -132,7 +147,7 @@ export async function createControlSocket(options: {
         close: () =>
           new Promise<void>((res) => {
             server.close(() => {
-              if (fs.existsSync(socketPath)) fs.unlinkSync(socketPath);
+              if (!isPipe && fs.existsSync(socketPath)) fs.unlinkSync(socketPath);
               res();
             });
           }),

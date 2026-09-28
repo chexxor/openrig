@@ -25,7 +25,9 @@ async function query(sockPath: string, line: string): Promise<unknown> {
 describe("socket commands query (I4)", () => {
   it("returns the full registry projection with live availability; parity with the one source", async () => {
     const view = createViewState({ instanceId: "i4", getSnapshot: () => demoSnapshot() });
-    const sockPath = path.join(os.tmpdir(), `t-i4-${process.pid}.sock`);
+    const sockPath = process.platform === "win32"
+      ? `\\\\.\\pipe\\openrig-tui-i4-${process.pid}-${Math.floor(Math.random() * 1e6)}`
+      : path.join(os.tmpdir(), `t-i4-${process.pid}.sock`);
     const sock = await createControlSocket({ socketPath: sockPath, view });
     try {
       const res = (await query(sockPath, "commands")) as { ok: boolean; commands: Array<{ name: string; available: boolean; context: string }> };

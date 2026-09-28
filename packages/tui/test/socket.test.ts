@@ -16,6 +16,10 @@ afterEach(async () => {
 });
 
 function shortSockPath(): string {
+  // win32: filesystem Unix sockets cannot be listen()ed (EACCES) — use a named pipe.
+  if (process.platform === "win32") {
+    return `\\\\.\\pipe\\openrig-tui-t-${process.pid}-${Math.floor(Math.random() * 1e6)}`;
+  }
   return path.join(os.tmpdir(), `tui-t-${process.pid}-${Math.floor(Math.random() * 1e6)}.sock`);
 }
 
@@ -94,7 +98,11 @@ describe("control-socket adapter (spike-adopted; arch boundary constraint)", () 
 
   it("defaults the socket home to $OPENRIG_HOME/run (herdr-style convention) and stays under the limit", () => {
     const p = defaultSocketPath("tui-1");
-    expect(p).toMatch(/[/\\]run[/\\]tui-tui-1\.sock$/);
+    if (process.platform === "win32") {
+      expect(p).toMatch(/^\\\\\.\\pipe\\openrig-tui-tui-1$/);
+    } else {
+      expect(p).toMatch(/[/\\]run[/\\]tui-tui-1\.sock$/);
+    }
     expect(Buffer.byteLength(p)).toBeLessThanOrEqual(MAX_SOCKET_PATH_BYTES);
   });
 });
