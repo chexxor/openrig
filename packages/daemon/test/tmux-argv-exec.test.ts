@@ -94,4 +94,19 @@ describe("tmux argv exec path", () => {
       ["tmux", "paste-buffer", "-t", "dev", "-b", "buf1", "-d", "-r", "-p"],
     ]);
   });
+
+  it("sendText uses send-keys -l on the psmux path (named buffers disabled)", async () => {
+    const seen: string[][] = [];
+    const fs = memFs();
+    const exec = vi.fn(async (_cmd: string) => "");
+    // 4th arg false = psmux: paste-buffer is unusable there.
+    const adapter = new TmuxAdapter(exec, fs, async (argv) => {
+      seen.push(argv);
+      return "";
+    }, false);
+    await adapter.sendText("dev", "hello world");
+    expect(seen).toEqual([
+      ["tmux", "send-keys", "-t", "dev", "-l", "hello world"],
+    ]);
+  });
 });

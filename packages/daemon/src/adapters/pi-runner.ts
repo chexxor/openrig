@@ -524,6 +524,29 @@ export function prepareRunnerSidecar(
   return { catchUpSince: resuming ? prior?.lastEntryId : undefined };
 }
 
+/** Resolve how to spawn the `pi` CLI. On Windows the installed `pi` is a
+ *  POSIX `sh` script (extension-less) beside a `pi-launcher.js` Node shim;
+ *  Node's spawn cannot execute that script (ENOENT). Prefer running the shim
+ *  with our own Node. POSIX is unchanged. Exported for the runner test. */
+export function resolvePiSpawn(
+  platform: NodeJS.Platform,
+  env: Record<string, string | undefined>,
+  childArgs: string[],
+): { command: string; args: string[] } {
+  if (platform !== "win32") return { command: "pi", args: childArgs };
+  const pathValue = env.PATH ?? env.Path ?? "";
+  for (const dir of pathValue.split(nodePath.delimiter)) {
+    if (!dir) continue;
+    const launcher = nodePath.join(dir, "pi-launcher.js");
+    try {
+      if (fs.existsSync(launcher)) {
+        return { command: process.execPath, args: [launcher, ...childArgs] };
+      }
+    } catch { /* keep looking */ }
+  }
+  return { command: "pi", args: childArgs };
+}
+
 export async function main(argv = process.argv.slice(2)): Promise<void> {
   let args: RunnerArgs;
   try {
@@ -568,7 +591,8 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   console.log(`[pi-runner] starting pi --mode rpc (seat ${args.sessionName})`);
   console.log(`[pi-runner] send text normally; prefixes: "/followup <text>" queues after the turn, "/abort" cancels`);
 
-  const child = spawn("pi", childArgs, {
+  const spawnTarget = resolvePiSpawn(process.platform, childEnv, childArgs);
+  const child = spawn(spawnTarget.command, spawnTarget.args, {
     cwd: args.cwd,
     env: childEnv,
     stdio: ["pipe", "pipe", "pipe"],

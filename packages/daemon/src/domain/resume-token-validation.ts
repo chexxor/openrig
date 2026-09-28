@@ -40,7 +40,7 @@ const MAX_TOKEN_LEN = 200;
 // always argv/shellQuote-passed, never a remote scp/rsync operand where
 // user@host parsing would matter (that ambiguity is why `rig file` excludes
 // it; this surface has no such parse).
-const PI_SESSION_FILE_CHARSET_RE = /^[A-Za-z0-9._/@-]+$/;
+const PI_SESSION_FILE_CHARSET_RE = /^[A-Za-z0-9._/@\\:-]+$/;
 const MAX_PI_SESSION_FILE_LEN = 1024;
 const PI_SESSION_FILE_SUFFIX = ".jsonl";
 
@@ -70,16 +70,20 @@ function validatePiSessionFileToken(token: string): ResumeTokenValidationOk | Re
   if (token.length > MAX_PI_SESSION_FILE_LEN) {
     return { ok: false, error: `Pi session-file token is too long (max ${MAX_PI_SESSION_FILE_LEN} characters).` };
   }
-  if (!token.startsWith("/")) {
-    return { ok: false, error: "Pi session-file token must be an absolute path (starting with '/')." };
+  // Absolute on POSIX ('/…') OR Windows ('C:\…' / 'C:/…'); the runner's cwd is
+  // the project dir, so Windows seats report a drive-letter path.
+  const isPosixAbs = token.startsWith("/");
+  const isWinAbs = /^[A-Za-z]:[\\/]/.test(token);
+  if (!isPosixAbs && !isWinAbs) {
+    return { ok: false, error: "Pi session-file token must be an absolute path (starting with '/' or a drive letter)." };
   }
-  if (token.split("/").includes("..")) {
+  if (token.split(/[\\/]/).includes("..")) {
     return { ok: false, error: "Pi session-file token must not contain a '..' path segment." };
   }
   if (!PI_SESSION_FILE_CHARSET_RE.test(token)) {
     return {
       ok: false,
-      error: "Pi session-file token contains disallowed characters (allowed: letters, digits, '.', '_', '/', '@', '-').",
+      error: "Pi session-file token contains disallowed characters (allowed: letters, digits, '.', '_', '/', '\\', ':', '@', '-').",
     };
   }
   if (!token.endsWith(PI_SESSION_FILE_SUFFIX)) {

@@ -264,6 +264,11 @@ export class TmuxAdapter {
     private exec: ExecFn,
     private fileOps: TmuxFileOps = defaultTmuxFileOps(),
     private argvExec?: ArgvExecFn,
+    /** psmux (Windows) resolves named buffers for load/list/show but NOT for
+     *  paste-buffer (`psmux: no buffer <name>`); only the DEFAULT buffer works.
+     *  When false, sendText uses the default buffer and serializes calls so
+     *  parallel seat launches never share it. Default true (real tmux). */
+    private useNamedBuffers = true,
   ) {}
 
   /**
@@ -405,24 +410,50 @@ export class TmuxAdapter {
    * seats from colliding.
    */
   async sendText(target: string, text: string): Promise<TmuxResult> {
+    if (this.useNamedBuffers) return this.sendTextCore(target, text, true);
+    // psmux (Windows): BOTH buffer paths are broken — `paste-buffer -b <name>`
+    // reports "no buffer <name>", and the DEFAULT paste-buffer pastes the OS
+    // clipboard, not the loaded buffer. The one reliable primitive is
+    // `send-keys -l` (literal, argv — no shell). No shared buffer, no lock.
+    try {
+      await this.run(["tmux", "send-keys", "-t", target, "-l", text],
+        `tmux send-keys -t ${shellQuote(target)} -l ${shellQuote(text)}`);
+      return { ok: true };
+    } catch (err) {
+      return classifyWriteError(err);
+    }
+  }
+
+  private async sendTextCore(target: string, text: string, named: boolean): Promise<TmuxResult> {
     const path = this.fileOps.tmpName();
     const buffer = this.fileOps.bufferName();
     let bufferLoaded = false;
     try {
       await this.fileOps.writeFile(path, text);
-      await this.run(["tmux", "load-buffer", "-b", buffer, path],
-        `tmux load-buffer -b ${shellQuote(buffer)} ${shellQuote(path)}`);
+      if (named) {
+        await this.run(["tmux", "load-buffer", "-b", buffer, path],
+          `tmux load-buffer -b ${shellQuote(buffer)} ${shellQuote(path)}`);
+      } else {
+        await this.run(["tmux", "load-buffer", path],
+          `tmux load-buffer ${shellQuote(path)}`);
+      }
       bufferLoaded = true;
-      await this.run(["tmux", "paste-buffer", "-t", target, "-b", buffer, "-d", "-r", "-p"],
-        `tmux paste-buffer -t ${shellQuote(target)} -b ${shellQuote(buffer)} -d -r -p`);
+      await this.run(
+        named
+          ? ["tmux", "paste-buffer", "-t", target, "-b", buffer, "-d", "-r", "-p"]
+          : ["tmux", "paste-buffer", "-t", target, "-d", "-r", "-p"],
+        named
+          ? `tmux paste-buffer -t ${shellQuote(target)} -b ${shellQuote(buffer)} -d -r -p`
+          : `tmux paste-buffer -t ${shellQuote(target)} -d -r -p`);
       return { ok: true };
     } catch (err) {
       if (bufferLoaded) {
         // paste failed after load - `-d` never ran, so the buffer is still
         // resident. Best-effort delete to avoid leaking it.
         try {
-          await this.run(["tmux", "delete-buffer", "-b", buffer],
-        `tmux delete-buffer -b ${shellQuote(buffer)}`);
+          await this.run(
+            named ? ["tmux", "delete-buffer", "-b", buffer] : ["tmux", "delete-buffer"],
+            named ? `tmux delete-buffer -b ${shellQuote(buffer)}` : "tmux delete-buffer");
         } catch { /* best-effort cleanup */ }
       }
       return classifyWriteError(err);

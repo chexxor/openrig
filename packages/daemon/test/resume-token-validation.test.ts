@@ -92,6 +92,23 @@ describe("validateResumeToken — pi_session_file (path-shaped, per-type)", () =
     }
   });
 
+  it("accepts a Windows drive-letter absolute path (native win32 seats)", () => {
+    const win = "C:\\Users\\Alex\\.openrig-test\\state\\pi\\advise-lead@tapl-pi\\sessions\\2026-09-28T01-06-39_0197.jsonl";
+    const r = validateResumeToken("pi", win);
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.token).toBe(win);
+  });
+
+  it("accepts a forward-slash Windows path too", () => {
+    const win = "C:/Users/Alex/.openrig-test/state/pi/seat-a/sessions/2026-09-28T01-06-39_0197.jsonl";
+    expect(validateResumeToken("pi", win).ok).toBe(true);
+  });
+
+  it("still rejects a '..' segment in a Windows path", () => {
+    const bad = "C:\\Users\\..\\secrets\\seat\\sessions\\2026-09-28T01-06-39_0197.jsonl";
+    expect(validateResumeToken("pi", bad).ok).toBe(false);
+  });
+
   it("accepts '@' in the path — Pi seat state dirs key on the CANONICAL session name (pod-member@rig)", () => {
     // VM-caught regression: the original PRD charset rejected every real Pi
     // seat's session file because the layout embeds the canonical name.

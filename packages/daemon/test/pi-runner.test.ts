@@ -8,10 +8,13 @@ import { describe, it, expect, vi } from "vitest";
 import { PassThrough } from "node:stream";
 import {
   createRunnerInput, MAX_PI_INPUT_BYTES, RunnerCore, mapPiEvent, parseRunnerArgs,
-  prepareRunnerSidecar,
+  prepareRunnerSidecar, resolvePiSpawn,
   type RunnerIo,
 } from "../src/adapters/pi-runner.js";
 import { PI_RUNNER_READY_MARKER, PI_RUNNER_EXIT_MARKER, type PiRunnerState } from "../src/adapters/pi-runner-protocol.js";
+import fs from "node:fs";
+import os from "node:os";
+import nodePath from "node:path";
 
 const SESSION = "devpi-a@some-rig";
 const SESSION_FILE = "/state/pi/devpi-a@some-rig/sessions/2026_0197.jsonl";
@@ -44,6 +47,27 @@ function readyCore(f = fakeIo()) {
 }
 
 // ── Actual Node line editor + framed input ──────────────────────────────────
+
+describe("resolvePiSpawn (Windows `pi` shim)", () => {
+  it("is unchanged on POSIX", () => {
+    const r = resolvePiSpawn("linux", {}, ["--mode", "rpc"]);
+    expect(r).toEqual({ command: "pi", args: ["--mode", "rpc"] });
+  });
+
+  it("falls back to `pi` on win32 when no launcher is on PATH", () => {
+    const r = resolvePiSpawn("win32", { PATH: "C:\\nope" }, ["--mode", "rpc"]);
+    expect(r.command).toBe("pi");
+  });
+
+  it("runs the launcher shim with our node when pi-launcher.js is on PATH", () => {
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), "pi-shim-"));
+    fs.writeFileSync(nodePath.join(dir, "pi-launcher.js"), "// shim\n");
+    const r = resolvePiSpawn("win32", { PATH: `${dir};C:\\nope` }, ["--mode", "rpc"]);
+    expect(r.command).toBe(process.execPath);
+    expect(r.args).toEqual([nodePath.join(dir, "pi-launcher.js"), "--mode", "rpc"]);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+});
 
 describe("runner input", () => {
   const start = "\u001b[200~";

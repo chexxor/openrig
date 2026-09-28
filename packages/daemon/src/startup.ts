@@ -398,7 +398,10 @@ export async function createDaemon(opts?: DaemonOptions): Promise<DaemonResult> 
   // the tmux-argv-exec suite.
   const argvExec = opts?.argvExec
     ?? (opts?.tmuxExec ? undefined : process.platform === "win32" ? execArgvCommand : undefined);
-  const tmuxAdapter = new TmuxAdapter(opts?.tmuxExec ?? execCommand, undefined, argvExec);
+  const tmuxAdapter = new TmuxAdapter(opts?.tmuxExec ?? execCommand, undefined, argvExec,
+    // psmux (native win32 without injected exec seams) cannot paste a NAMED
+    // buffer; use the serialized default-buffer path there only.
+    !(argvExec && !opts?.tmuxExec && !opts?.argvExec && process.platform === "win32"));
 
   // Slice 15 — Seat-activity service for the `terminal-active` primitive.
   // Lives at module scope so the projection chain (PsProjectionService,
@@ -522,7 +525,10 @@ export async function createDaemon(opts?: DaemonOptions): Promise<DaemonResult> 
   // OPR.0.4.6.PI1 — the Pi seat-state root + the compiled runner entry (daemon
   // dist). Shared by the Pi runtime adapter, the resume adapter, and the
   // resume-token capture sidecar reader.
-  const piStateRoot = nodePath.join(OPENRIG_HOME, "state", "pi");
+  // Absolute: the Pi runner's cwd is the SEAT cwd (project root), not the
+  // daemon's — a relative state root would resolve to two different dirs and
+  // the runner's ready sidecar would land where the daemon never looks.
+  const piStateRoot = nodePath.resolve(nodePath.join(OPENRIG_HOME, "state", "pi"));
   const piRunnerEntryPath = nodePath.resolve(import.meta.dirname, "./adapters/pi-runner.js");
   const piResume = new PiResumeAdapter(
     tmuxAdapter,
@@ -669,7 +675,7 @@ export async function createDaemon(opts?: DaemonOptions): Promise<DaemonResult> 
   const codexAdapter = new CodexRuntimeAdapter({ tmux: tmuxAdapter, fsOps: { readFile: (p: string) => fs.readFileSync(p, "utf-8"), writeFile: (p: string, c: string) => fs.writeFileSync(p, c, "utf-8"), exists: (p: string) => fs.existsSync(p), mkdirp: (p: string) => fs.mkdirSync(p, { recursive: true }), listFiles: (dir: string) => { const r: string[] = []; function w(d: string, pre: string) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { if (e.isDirectory()) w(nodePath.join(d, e.name), nodePath.join(pre, e.name)); else r.push(pre ? nodePath.join(pre, e.name) : e.name); } } w(dir, ""); return r; }, statMode: (p: string) => fs.statSync(p).mode, chmod: (p: string, m: number) => fs.chmodSync(p, m), homedir: daemonHome }, codexHome, launchPath: process.env.PATH, activityRelayPath: nodePath.resolve(import.meta.dirname, "../assets/plugins/openrig-core/hooks/scripts/activity-relay.cjs") });
   // OPR.0.4.6.PI1 — the RPC-first Pi adapter (runner-in-a-pane). Same fsOps
   // shape as the Codex adapter; seat isolation roots under piStateRoot.
-  const piAdapter = new PiRuntimeAdapter({ tmux: tmuxAdapter, fsOps: { readFile: (p: string) => fs.readFileSync(p, "utf-8"), writeFile: (p: string, c: string) => fs.writeFileSync(p, c, "utf-8"), exists: (p: string) => fs.existsSync(p), mkdirp: (p: string) => fs.mkdirSync(p, { recursive: true }), listFiles: (dir: string) => { const r: string[] = []; function w(d: string, pre: string) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { if (e.isDirectory()) w(nodePath.join(d, e.name), nodePath.join(pre, e.name)); else r.push(pre ? nodePath.join(pre, e.name) : e.name); } } w(dir, ""); return r; } }, stateRoot: piStateRoot, runnerEntryPath: piRunnerEntryPath });
+  const piAdapter = new PiRuntimeAdapter({ tmux: tmuxAdapter, fsOps: { readFile: (p: string) => fs.readFileSync(p, "utf-8"), writeFile: (p: string, c: string) => fs.writeFileSync(p, c, "utf-8"), exists: (p: string) => fs.existsSync(p), mkdirp: (p: string) => fs.mkdirSync(p, { recursive: true }), listFiles: (dir: string) => { const r: string[] = []; function w(d: string, pre: string) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { if (e.isDirectory()) w(nodePath.join(d, e.name), nodePath.join(pre, e.name)); else r.push(pre ? nodePath.join(pre, e.name) : e.name); } } w(dir, ""); return r; } }, stateRoot: piStateRoot, runnerEntryPath: piRunnerEntryPath, seedDir: process.env.OPENRIG_PI_SEED_DIR });
   // OPR.0.5.1.1 — the stub runtime adapter (Pi-shaped node-script runner in a pane).
   // Same fsOps shape as Pi; the compiled runner entry lives in the daemon dist.
   const { StubRuntimeAdapter } = await import("./adapters/stub-runtime-adapter.js");

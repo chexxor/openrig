@@ -55,6 +55,12 @@ export interface PiRuntimeAdapterDeps {
   sleep?: (ms: number) => Promise<void>;
   /** Launch-attempt id minting (tests inject; defaults to randomUUID). */
   newLaunchId?: () => string;
+  /** Optional template dir whose files are copied into each seat's managed
+   *  agent dir on first launch (where PI_CODING_AGENT_DIR points — auth.json,
+   *  models.json, settings.json). Non-destructive: existing files are kept.
+   *  Wired from OPENRIG_PI_SEED_DIR. Lets a Pi-only host supply provider
+   *  credentials that the deny-by-default env allowlist never forwards. */
+  seedDir?: string;
 }
 
 export class PiRuntimeAdapter implements RuntimeAdapter {
@@ -66,6 +72,7 @@ export class PiRuntimeAdapter implements RuntimeAdapter {
   private trustPosture: "approve" | "no-approve";
   private sleep: (ms: number) => Promise<void>;
   private newLaunchId: () => string;
+  private seedDir?: string;
 
   constructor(deps: PiRuntimeAdapterDeps) {
     this.tmux = deps.tmux;
@@ -75,6 +82,7 @@ export class PiRuntimeAdapter implements RuntimeAdapter {
     this.trustPosture = deps.trustPosture ?? "no-approve";
     this.sleep = deps.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
     this.newLaunchId = deps.newLaunchId ?? (() => randomUUID());
+    this.seedDir = deps.seedDir;
   }
 
   /** The pi-runner sidecar reader shape resume-token-capture consumes
@@ -221,6 +229,7 @@ export class PiRuntimeAdapter implements RuntimeAdapter {
     const paths = piSeatPaths(this.stateRoot, sessionName);
     this.fs.mkdirp(paths.agentDir);
     this.fs.mkdirp(paths.sessionsDir);
+    this.seedAgentDir(paths.agentDir);
 
     // Launch-attempt scoping (guard fold): overwrite any stale sidecar from a
     // prior runner instance with a pending record BEFORE the command is typed,
@@ -325,6 +334,16 @@ export class PiRuntimeAdapter implements RuntimeAdapter {
   }
 
   // ── internals ──────────────────────────────────────────────────────────────
+
+  private seedAgentDir(agentDir: string): void {
+    if (!this.seedDir || !this.fs.listFiles || !this.fs.exists(this.seedDir)) return;
+    for (const rel of this.fs.listFiles(this.seedDir)) {
+      const dest = nodePath.join(agentDir, rel);
+      if (this.fs.exists(dest)) continue; // non-destructive: seat state wins
+      this.fs.mkdirp(nodePath.dirname(dest));
+      this.fs.writeFile(dest, this.fs.readFile(nodePath.join(this.seedDir, rel)));
+    }
+  }
 
   private readRunnerState(sessionName: string): PiRunnerState | null {
     const { runnerStatePath } = piSeatPaths(this.stateRoot, sessionName);
