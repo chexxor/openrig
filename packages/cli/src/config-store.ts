@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, mkdirSync, unlinkSync, existsSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { homedir } from "node:os";
 import {
   getDefaultOpenRigPath,
@@ -681,14 +681,18 @@ function setNestedValue(obj: Record<string, unknown>, parts: string[], value: un
 // Files and Progress default to the whole workspace so a fresh
 // `rig config init-workspace` install is browsable without extra env wiring.
 export function deriveWorkspaceDefault(key: ValidKey, workspaceRoot: string): string {
+  // Resolve to ABSOLUTE: `decodeAllowlist` silently drops non-absolute pairs,
+  // so a relative workspace root produced a default `workspace:<rel>` that the
+  // file API (and `workspace doctor`) saw as zero usable entries.
+  const root = resolve(workspaceRoot);
   switch (key) {
-    case "workspace.slices_root":      return join(workspaceRoot, "missions");
-    case "workspace.steering_path":    return join(workspaceRoot, "STEERING.md");
-    case "workspace.specs_root":       return join(workspaceRoot, "specs");
-    case "workspace.projects_root":    return join(workspaceRoot, "projects");
-    case "workspace.catalog_path":     return join(workspaceRoot, "workspace.yaml");
-    case "files.allowlist":            return `workspace:${workspaceRoot}`;
-    case "progress.scan_roots":        return `workspace:${workspaceRoot}`;
+    case "workspace.slices_root":      return join(root, "missions");
+    case "workspace.steering_path":    return join(root, "STEERING.md");
+    case "workspace.specs_root":       return join(root, "specs");
+    case "workspace.projects_root":    return join(root, "projects");
+    case "workspace.catalog_path":     return join(root, "workspace.yaml");
+    case "files.allowlist":            return `workspace:${root}`;
+    case "progress.scan_roots":        return `workspace:${root}`;
     // Same unset default as the daemon settings store.
     case "workspace.operator_seat_name": return ""; // unset: discover a registered human, never invent a kernel seat
     default: return "";

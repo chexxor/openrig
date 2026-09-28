@@ -471,14 +471,18 @@ function setNestedValue(obj: Record<string, unknown>, parts: string[], value: un
 }
 
 function deriveWorkspaceDefault(key: SettingsValidKey, workspaceRoot: string): string {
+  // Resolve to ABSOLUTE: `decodeAllowlist` silently drops non-absolute pairs,
+  // so a relative workspace root produced a default `workspace:<rel>` that the
+  // file API (and `workspace doctor`) saw as zero usable entries.
+  const root = path.resolve(workspaceRoot);
   switch (key) {
-    case "workspace.slices_root":      return path.join(workspaceRoot, "missions");
-    case "workspace.steering_path":    return path.join(workspaceRoot, "STEERING.md");
-    case "workspace.specs_root":       return path.join(workspaceRoot, "specs");
-    case "workspace.projects_root":    return path.join(workspaceRoot, "projects");
-    case "workspace.catalog_path":     return path.join(workspaceRoot, "workspace.yaml");
-    case "files.allowlist":            return `workspace:${workspaceRoot}`;
-    case "progress.scan_roots":        return `workspace:${workspaceRoot}`;
+    case "workspace.slices_root":      return path.join(root, "missions");
+    case "workspace.steering_path":    return path.join(root, "STEERING.md");
+    case "workspace.specs_root":       return path.join(root, "specs");
+    case "workspace.projects_root":    return path.join(root, "projects");
+    case "workspace.catalog_path":     return path.join(root, "workspace.yaml");
+    case "files.allowlist":            return `workspace:${root}`;
+    case "progress.scan_roots":        return `workspace:${root}`;
     default: return "";
   }
 }
