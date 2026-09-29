@@ -162,7 +162,13 @@ export async function defaultProbeRuntimes(): Promise<RuntimeProbeResult> {
       // at ~7.5s on the validation box — the previous 5s budget SIGTERM'd a
       // healthy `codex login status` and reported the runtime unavailable
       // (kernel auth_blocked, issue #1).
-      const { stdout, stderr } = await execAsync(cmd, { timeout: 15000 });
+      //
+      // windowsHide: the probes are console apps (`claude auth status`,
+      // `codex login status`). Without this flag Windows spawns a visible
+      // console window for each probe — a brief flash on every daemon start,
+      // even for a Pi-only rig that never uses those runtimes (reported by the
+      // tutor-pi operator). Hide the windows; the probe result is unchanged.
+      const { stdout, stderr } = await execAsync(cmd, { timeout: 15000, windowsHide: true });
       const out = `${stdout}\n${stderr}`.toLowerCase();
       // Conservative parse: any indicator the CLI considers itself
       // unauthenticated marks the runtime unavailable. Tighter parsing

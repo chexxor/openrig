@@ -1,0 +1,100 @@
+{"v":1,"ts":"2026-09-28T02:06:45.073Z","spanId":"36a0a4cd-df9a-428c-beb2-823acdf5b4aa","phase":"end","site":"request:POST /api/up","durationMs":6005,"outcome":"ok"}
+{"v":1,"ts":"2026-09-28T03:42:16.156Z","spanId":"f35b6c66-d4ba-4415-8231-84d0586ba387","phase":"begin","site":"bootstrap.plan.preflight"}
+{"v":1,"ts":"2026-09-28T03:42:16.505Z","spanId":"f35b6c66-d4ba-4415-8231-84d0586ba387","phase":"end","site":"bootstrap.plan.preflight","durationMs":349.10129999928176,"outcome":"ok"}
+{"v":1,"ts":"2026-09-28T03:42:16.507Z","spanId":"67203703-0c2f-426d-b80c-3edebad51ee3","phase":"end","site":"request:POST /api/up","durationMs":377,"outcome":"ok"}
+{"v":1,"ts":"2026-09-28T04:13:14.782Z","spanId":"483fd875-9b03-44b3-9403-fe7dee1e1f2d","phase":"end","site":"session_transport.send_text","durationMs":32.025999999954365,"outcome":"ok"}
+{"v":1,"ts":"2026-09-28T04:13:15.020Z","spanId":"fe078fb2-29b7-4371-9063-03bda7ae5496","phase":"end","site":"session_transport.submit","durationMs":37.71060000004945,"outcome":"ok"}
+{"v":1,"ts":"2026-09-28T04:13:15.020Z","spanId":"00b4404c-d1a7-493d-80e7-54f4cd11c36c","phase":"end","site":"request:POST /api/transport/send","durationMs":429,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:26:12.088Z","spanId":"fdc3e748-c4d3-4f8a-abc3-edda5e948ce4","phase":"begin","site":"bootstrap.plan.preflight"}
+{"v":1,"ts":"2026-09-29T05:26:12.933Z","spanId":"fdc3e748-c4d3-4f8a-abc3-edda5e948ce4","phase":"end","site":"bootstrap.plan.preflight","durationMs":844.4678000062704,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:26:12.934Z","spanId":"756a3d14-cc43-4212-b739-5e93c463bed2","phase":"end","site":"request:POST /api/up","durationMs":894,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:26:21.782Z","spanId":"b3a152c5-c088-4bab-80ec-2c65b5050d50","phase":"end","site":"request:POST /api/up","durationMs":5120,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:26:30.312Z","spanId":"74db5f8a-f6e5-4d24-88e5-41feb6ab139f","phase":"end","site":"request:POST /api/up","durationMs":5014,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:27:32.687Z","spanId":"899601f8-56ee-4183-8d63-ee2c81167ff0","phase":"end","site":"request:POST /api/up","durationMs":14282,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:27:42.684Z","spanId":"395b3b33-477a-4130-b0c4-ebe09ce9af67","phase":"end","site":"request:POST /api/down","durationMs":760,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:30:48.565Z","spanId":"4b05ff56-1113-4a09-b732-8fd3be20f088","phase":"begin","site":"bootstrap.plan.preflight"}
+{"v":1,"ts":"2026-09-29T05:30:48.929Z","spanId":"4b05ff56-1113-4a09-b732-8fd3be20f088","phase":"end","site":"bootstrap.plan.preflight","durationMs":364.23379999998724,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:30:48.930Z","spanId":"d6003b3f-4849-46b6-aa44-d60941c1e998","phase":"end","site":"request:POST /api/up","durationMs":412,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:30:57.372Z","spanId":"54374fdc-5715-4086-a4be-b85f17c1ea42","phase":"end","site":"request:POST /api/down","durationMs":1799,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:31:13.749Z","spanId":"6a963565-b6f4-4db3-8194-4e73950acf64","phase":"end","site":"request:POST /api/up","durationMs":12636,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:36:33.589Z","spanId":"940fcd77-beed-4d8b-ada3-fdab186c0a86","phase":"begin","site":"bootstrap.plan.preflight"}
+{"v":1,"ts":"2026-09-29T05:36:33.957Z","spanId":"940fcd77-beed-4d8b-ada3-fdab186c0a86","phase":"end","site":"bootstrap.plan.preflight","durationMs":367.6223000000464,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:36:33.958Z","spanId":"83d0b41f-0070-4ef2-8c17-577a90e7a164","phase":"end","site":"request:POST /api/up","durationMs":423,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:36:36.747Z","spanId":"798dd3b2-121d-4123-89f6-e5e84450f5c3","phase":"end","site":"request:POST /api/down","durationMs":2038,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:36:56.864Z","spanId":"851a2907-ad5d-4925-bcf6-92c3d3749f24","phase":"end","site":"request:POST /api/up","durationMs":16330,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:37:48.239Z","spanId":"3af9cbad-c41e-4b9f-9382-3f8d66a678de","phase":"begin","site":"bootstrap.plan.preflight"}
+{"v":1,"ts":"2026-09-29T05:37:48.579Z","spanId":"3af9cbad-c41e-4b9f-9382-3f8d66a678de","phase":"end","site":"bootstrap.plan.preflight","durationMs":339.54450000007637,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:37:48.579Z","spanId":"4d4c8dae-83d7-4e9a-bfd6-03da6623ce18","phase":"end","site":"request:POST /api/up","durationMs":380,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:37:55.979Z","spanId":"7b6b8e2f-d944-4a9e-bedb-0db9e2fd4d98","phase":"end","site":"request:POST /api/down","durationMs":2421,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:38:15.738Z","spanId":"8c41504c-bb99-4a2d-829d-9c962264ef6b","phase":"end","site":"request:POST /api/up","durationMs":16004,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:46:00.998Z","spanId":"09c020dc-0b76-4ffb-8e90-7878eeb7c88d","phase":"begin","site":"bootstrap.plan.preflight"}
+{"v":1,"ts":"2026-09-29T05:46:01.341Z","spanId":"09c020dc-0b76-4ffb-8e90-7878eeb7c88d","phase":"end","site":"bootstrap.plan.preflight","durationMs":343.7524999999441,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:46:01.342Z","spanId":"904a3a37-ec49-47d3-9b10-f6f968b48a2e","phase":"end","site":"request:POST /api/up","durationMs":388,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:46:10.496Z","spanId":"6daf1bb1-c5f6-463b-97a2-471adad8340f","phase":"end","site":"request:POST /api/down","durationMs":2392,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:46:30.357Z","spanId":"c100fbbc-3c10-47b5-a4ca-8a296a669bb3","phase":"end","site":"request:POST /api/up","durationMs":16070,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:22.599Z","spanId":"3d747410-0eb6-45a9-9513-f114ab9eeca7","phase":"end","site":"session_transport.send_text","durationMs":28.629500000039116,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:22.831Z","spanId":"c187fb58-e1b2-410e-8f67-c256092bc597","phase":"end","site":"session_transport.submit","durationMs":31.98439999995753,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:22.831Z","spanId":"36502f00-6e80-4d1f-8eb6-e7147523b637","phase":"end","site":"request:POST /api/transport/send","durationMs":404,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:23.743Z","spanId":"ce68ca07-f6c7-4ec2-9960-6dc3368464b8","phase":"end","site":"session_transport.send_text","durationMs":30.263200000161305,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:23.977Z","spanId":"094d0b03-c263-4cdf-aff1-abbd7b821ba8","phase":"end","site":"session_transport.submit","durationMs":31.590499999932945,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:23.977Z","spanId":"1944059f-7c60-4839-af9f-b051dbf205b7","phase":"end","site":"request:POST /api/transport/send","durationMs":420,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:24.855Z","spanId":"ed63a3cc-8da8-4da0-9752-07d26db0cb7a","phase":"end","site":"session_transport.send_text","durationMs":34.41730000008829,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:25.245Z","spanId":"c56815de-482d-43da-9eb6-12a6313a1567","phase":"end","site":"session_transport.submit","durationMs":107.43229999998584,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:25.245Z","spanId":"5e458fa2-efa9-4b93-bc2c-c94ea8046743","phase":"end","site":"request:POST /api/transport/send","durationMs":580,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:26.251Z","spanId":"05a0ff45-7c88-40ee-a112-6adbd72f0ca3","phase":"end","site":"session_transport.send_text","durationMs":123.23919999995269,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:26.482Z","spanId":"6ba084f1-457d-4961-9735-1335da22f181","phase":"end","site":"session_transport.submit","durationMs":31.479599999962375,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:26.482Z","spanId":"9d3c4828-f14d-49cf-926c-b707f718f0e0","phase":"end","site":"request:POST /api/transport/send","durationMs":586,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:27.476Z","spanId":"9f7c172f-c756-4730-898b-6376f6e94ffd","phase":"end","site":"session_transport.send_text","durationMs":31.018000000156462,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:27.708Z","spanId":"8aa3def9-236a-4652-9c98-45968b14fa7d","phase":"end","site":"session_transport.submit","durationMs":31.18640000000596,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:27.708Z","spanId":"ab668c32-69a0-4c5d-90d5-f53834a491ff","phase":"end","site":"request:POST /api/transport/send","durationMs":419,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:28.634Z","spanId":"43583e4d-cc9c-4799-8720-5b4abe4c807c","phase":"end","site":"session_transport.send_text","durationMs":36.841199999907985,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:28.879Z","spanId":"f38c0725-c192-4c50-8832-89783db64fbd","phase":"end","site":"session_transport.submit","durationMs":39.16870000003837,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:28.879Z","spanId":"514918bb-6eea-40da-acdd-3118a2645b53","phase":"end","site":"request:POST /api/transport/send","durationMs":442,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:29.759Z","spanId":"c98a0c92-6062-486b-a5ec-e2da2bd5a10c","phase":"end","site":"session_transport.send_text","durationMs":29.26270000007935,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:29.990Z","spanId":"6cd7fa77-4003-4b4a-bf39-0793173d6ec1","phase":"end","site":"session_transport.submit","durationMs":29.62609999999404,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:29.990Z","spanId":"7607dc4f-4e85-4772-ad2c-b0838313ec7f","phase":"end","site":"request:POST /api/transport/send","durationMs":404,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:30.831Z","spanId":"9941462d-7c11-4e13-a30f-d89928e65d3b","phase":"end","site":"session_transport.send_text","durationMs":30.755899999989197,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:31.133Z","spanId":"355a8cc2-52fd-4fc1-8f52-2ebc6363746e","phase":"end","site":"session_transport.submit","durationMs":100.58530000015162,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:31.133Z","spanId":"cf0f51e7-4909-46a6-8a48-279d29da6bf1","phase":"end","site":"request:POST /api/transport/send","durationMs":476,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:32.015Z","spanId":"ba86a705-03b4-4261-a1b3-0609197c0868","phase":"end","site":"session_transport.send_text","durationMs":29.162100000074133,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:32.291Z","spanId":"0542ec43-aaa9-418f-9958-1420e790c4d0","phase":"end","site":"session_transport.submit","durationMs":34.02209999994375,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:32.291Z","spanId":"728d0bd7-7aff-432c-bd1e-a027affa4182","phase":"end","site":"request:POST /api/transport/send","durationMs":457,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:33.280Z","spanId":"7356b198-7696-475a-abc5-88bb2024c1bd","phase":"end","site":"session_transport.send_text","durationMs":35.39369999989867,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:33.520Z","spanId":"83832bea-414b-4156-bf39-e5ddac19bf66","phase":"end","site":"session_transport.submit","durationMs":39.749799999874085,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T05:57:33.520Z","spanId":"06929f88-7f18-4a69-804c-cf8e04a9a38d","phase":"end","site":"request:POST /api/transport/send","durationMs":562,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:46.109Z","spanId":"4cfc7a38-a107-47ac-b244-4c2190167de7","phase":"end","site":"session_transport.send_text","durationMs":28.629399999976158,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:46.340Z","spanId":"e12c96fb-723a-43d3-a140-3ceda28efc1b","phase":"end","site":"session_transport.submit","durationMs":30.799300000071526,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:46.340Z","spanId":"a3069520-9ba4-444b-917d-bbd25e66894f","phase":"end","site":"request:POST /api/transport/send","durationMs":409,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:48.291Z","spanId":"2787c5c9-1875-4d45-93c8-300395c02539","phase":"end","site":"session_transport.send_text","durationMs":29.052500000223517,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:48.610Z","spanId":"508e1412-7a6b-4aea-821e-a8e4262661c7","phase":"end","site":"session_transport.submit","durationMs":117.92639999976382,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:48.610Z","spanId":"d1beabef-aeeb-48e2-80e2-655f7aed7f23","phase":"end","site":"request:POST /api/transport/send","durationMs":497,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:50.518Z","spanId":"2561ac71-350e-462a-a160-fafaab5a5964","phase":"end","site":"session_transport.send_text","durationMs":27.960200000088662,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:50.750Z","spanId":"2f468962-aadc-422d-bb26-0cf1941f8d51","phase":"end","site":"session_transport.submit","durationMs":31.444799999706447,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:50.750Z","spanId":"9775a682-9545-48f2-b9b5-3a0dfbaf831a","phase":"end","site":"request:POST /api/transport/send","durationMs":407,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:52.790Z","spanId":"d677ede4-4cea-41b8-86b1-8f2787448185","phase":"end","site":"session_transport.send_text","durationMs":38.782000000122935,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:53.021Z","spanId":"a94002a9-c71e-4186-bcdc-7d7e7d2f2dce","phase":"end","site":"session_transport.submit","durationMs":29.8890999997966,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:53.021Z","spanId":"8f4a92f8-6bc0-4222-afa5-9f20b1af1b26","phase":"end","site":"request:POST /api/transport/send","durationMs":559,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:55.028Z","spanId":"0ada5a0c-e46a-4150-9fb4-5b534978ca99","phase":"end","site":"session_transport.send_text","durationMs":31.69980000006035,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:55.259Z","spanId":"01aad8bf-e6d8-484b-8fd7-10c3226f11ad","phase":"end","site":"session_transport.submit","durationMs":30.153100000228733,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:55.259Z","spanId":"8139277e-6a2a-4f05-854d-316b99dc606f","phase":"end","site":"request:POST /api/transport/send","durationMs":421,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:57.212Z","spanId":"20722ef2-5404-461f-b01c-9ed5868637be","phase":"end","site":"session_transport.send_text","durationMs":29.29260000027716,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:57.444Z","spanId":"5366c4eb-692a-45b4-b7fb-d6a36b919f10","phase":"end","site":"session_transport.submit","durationMs":32.03679999988526,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:57.445Z","spanId":"57a3feca-761f-42af-82a0-72c6300ca1bd","phase":"end","site":"request:POST /api/transport/send","durationMs":415,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:59.417Z","spanId":"df9296a6-76f8-4377-b504-8aa389daf5a3","phase":"end","site":"session_transport.send_text","durationMs":27.345199999865144,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:59.722Z","spanId":"5d3e1e0b-8c00-4f0b-9d40-e3b024add08a","phase":"end","site":"session_transport.submit","durationMs":105.02310000034049,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:05:59.722Z","spanId":"a3a14850-4e54-4113-acb2-98fc67d899bd","phase":"end","site":"request:POST /api/transport/send","durationMs":478,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:01.737Z","spanId":"bd84c1bf-b8f0-4517-98ff-3ccdfad5e076","phase":"end","site":"session_transport.send_text","durationMs":105.46549999993294,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:01.967Z","spanId":"0323ecc5-c090-4d07-8b80-d9a62665903c","phase":"end","site":"session_transport.submit","durationMs":29.37140000006184,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:01.967Z","spanId":"797f0e46-ed54-4670-a64c-8673d7e5991c","phase":"end","site":"request:POST /api/transport/send","durationMs":548,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:03.968Z","spanId":"976a44a9-7387-4548-bd28-b1cf4d1ae25e","phase":"end","site":"session_transport.send_text","durationMs":31.303700000047684,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:04.205Z","spanId":"db289c59-c369-4498-a4a0-351f7fdc3641","phase":"end","site":"session_transport.submit","durationMs":35.598400000017136,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:04.205Z","spanId":"4d16f052-3dda-402b-a61d-3c5a39382c26","phase":"end","site":"request:POST /api/transport/send","durationMs":427,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:06.122Z","spanId":"0c6b9c7a-d193-43eb-a07c-d29232c5dea7","phase":"end","site":"session_transport.send_text","durationMs":29.20559999998659,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:06.354Z","spanId":"d01c9a5b-aa6d-4b20-a34d-9cc7b162e8f2","phase":"end","site":"session_transport.submit","durationMs":31.459100000094622,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:06:06.354Z","spanId":"71718efa-9189-49b1-83a9-8c58e2c062ea","phase":"end","site":"request:POST /api/transport/send","durationMs":406,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:09:38.185Z","spanId":"b193df1c-cc34-4aca-afdd-1d3668ffa4be","phase":"end","site":"session_transport.send_text","durationMs":31.17379999998957,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:09:38.415Z","spanId":"870cd9ab-458f-4bec-a3ed-0a7b3f01f4c7","phase":"end","site":"session_transport.submit","durationMs":29.77320000017062,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:09:38.415Z","spanId":"750eec74-3b55-4b60-a1a2-0e499d1a4431","phase":"end","site":"request:POST /api/transport/send","durationMs":413,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:29:44.079Z","spanId":"30776cd7-7d92-4d05-bdd4-b77665fabbfa","phase":"end","site":"session_transport.send_text","durationMs":35.22179999999935,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:29:44.311Z","spanId":"c71ecb07-c1b5-49c6-94d9-294b6d546f01","phase":"end","site":"session_transport.submit","durationMs":30.350900000001275,"outcome":"ok"}
+{"v":1,"ts":"2026-09-29T06:29:44.311Z","spanId":"9077ece2-54ca-45a2-b923-2f6189a9b910","phase":"end","site":"request:POST /api/transport/send","durationMs":553,"outcome":"ok"}

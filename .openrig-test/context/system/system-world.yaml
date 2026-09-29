@@ -1,0 +1,10 @@
+schema: openrig.system-world/v0alpha1
+id: openrig-default
+version: "0.5.9"
+context:
+  - ref: onboarding-width
+  - ref: world-public
+    profiles:
+      claude: guided
+      codex: codex-coverage
+skills: []

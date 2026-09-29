@@ -416,8 +416,15 @@ export class TmuxAdapter {
     // clipboard, not the loaded buffer. The one reliable primitive is
     // `send-keys -l` (literal, argv — no shell). No shared buffer, no lock.
     try {
-      await this.run(["tmux", "send-keys", "-t", target, "-l", text],
-        `tmux send-keys -t ${shellQuote(target)} -l ${shellQuote(text)}`);
+      // `send-keys -l` sends the string verbatim, but psmux does not translate
+      // an embedded "\n" into a real newline — a multi-line message would
+      // collapse to one long line of literal backslash-n. Wrap multi-line text
+      // in the bracketed-paste markers the OpenRig runners understand
+      // (\e[200~ … \e[201~) so the block arrives as a single literal paste
+      // with real newlines. Single-line text needs no wrapper.
+      const literal = text.includes("\n") ? `\u001b[200~${text}\u001b[201~` : text;
+      await this.run(["tmux", "send-keys", "-t", target, "-l", literal],
+        `tmux send-keys -t ${shellQuote(target)} -l ${shellQuote(literal)}`);
       return { ok: true };
     } catch (err) {
       return classifyWriteError(err);
@@ -502,9 +509,16 @@ export class TmuxAdapter {
   }
 
   async sendKeys(target: string, keys: string[]): Promise<TmuxResult> {
+    // psmux (Windows) does not honour tmux's `C-m` alias for carriage return:
+    // `send-keys … C-m` is silently dropped, so a preceding `sendText` is never
+    // submitted (startup send_text, claim hints, handover, and `rig send` all
+    // hang, and the un-submitted text clings to the next message). `Enter` is
+    // the portable key name and is equivalent to `C-m` on real tmux, so
+    // normalise centrally.
+    const normalised = keys.map((k) => (k === "C-m" ? "Enter" : k));
     try {
-      await this.run(["tmux", "send-keys", "-t", target, ...keys],
-        `tmux send-keys -t ${shellQuote(target)} ${keys.map(shellQuote).join(" ")}`);
+      await this.run(["tmux", "send-keys", "-t", target, ...normalised],
+        `tmux send-keys -t ${shellQuote(target)} ${normalised.map(shellQuote).join(" ")}`);
       return { ok: true };
     } catch (err) {
       return classifyWriteError(err);

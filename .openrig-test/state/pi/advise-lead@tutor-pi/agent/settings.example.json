@@ -1,0 +1,5 @@
+{
+  "packages": ["<your-home>/.pi/agent/npm/node_modules/pi-deepinfra"],
+  "defaultProvider": "deepinfra",
+  "defaultModel": "deepseek-ai/DeepSeek-V4.1-Flash"
+}
