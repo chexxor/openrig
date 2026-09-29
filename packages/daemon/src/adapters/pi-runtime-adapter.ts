@@ -405,7 +405,10 @@ export class PiRuntimeAdapter implements RuntimeAdapter {
     if (entry.category === "skill") {
       if (!binding.tmuxSession) return false;
       const { agentDir } = piSeatPaths(this.stateRoot, binding.tmuxSession);
-      const targetDir = nodePath.join(agentDir, "skills", entry.effectiveId);
+      // Sanitize the directory name: a QUALIFIED resource id contains ':'
+      // (e.g. "shared:deliberation"), which is illegal in a Windows path.
+      const dirName = entry.effectiveId.replace(/[<>:"/\\|?*]/g, "__");
+      const targetDir = nodePath.join(agentDir, "skills", dirName);
       this.fs.mkdirp(targetDir);
       const isDir = this.fs.listFiles ? this.fs.listFiles(entry.absolutePath).length > 0 : false;
       if (isDir && this.fs.listFiles) {
