@@ -164,6 +164,49 @@ function errorNotice(detail: unknown): string {
   return `${PI_RUNNER_ERROR_MARKER} ${text.slice(0, 400) || "request failed"}`;
 }
 
+// Mirror tool-call ARGUMENTS (and a capped result preview) into the pane so an
+// attached operator can see what a seat is doing, not just `gear tool ...`.
+// Default on; set OPENRIG_PI_MIRROR_TOOL_DETAIL=0 to suppress. (Thinking and
+// reasoning deltas are still not mirrored - that stays out by design.)
+const MIRROR_TOOL_DETAIL = process.env["OPENRIG_PI_MIRROR_TOOL_DETAIL"] !== "0";
+
+function oneLine(value: string, max: number): string {
+  const s = stripVTControlCharacters(value).replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu, " ").replace(/\s+/g, " ").trim();
+  return s.length > max ? `${s.slice(0, max - 1)}...` : s;
+}
+
+function summarizeToolArgs(args: unknown): string {
+  if (args == null) return "";
+  if (typeof args === "string") return oneLine(args, 160);
+  if (typeof args === "object") {
+    const a = args as Record<string, unknown>;
+    for (const key of ["command", "file_path", "path", "pattern", "query", "glob", "url", "prompt", "text"]) {
+      const v = a[key];
+      if (typeof v === "string" && v.trim()) return `${key}=${oneLine(v, 140)}`;
+    }
+    try { return oneLine(JSON.stringify(a), 160); } catch { return ""; }
+  }
+  return oneLine(String(args), 160);
+}
+
+function summarizeToolResult(result: unknown): string {
+  let s = "";
+  if (typeof result === "string") {
+    s = result;
+  } else if (result && typeof result === "object") {
+    const content = (result as { content?: unknown }).content;
+    if (Array.isArray(content)) {
+      s = content.map((c) => (c && typeof c === "object" && typeof (c as { text?: unknown }).text === "string" ? String((c as { text?: string }).text) : "")).join(" ");
+    } else {
+      try { s = JSON.stringify(result); } catch { s = ""; }
+    }
+  } else if (result != null) {
+    s = String(result);
+  }
+  return oneLine(s, 240);
+}
+
+
 export function mapPiEvent(event: Record<string, unknown>): MirrorAndActivity {
   const type = typeof event.type === "string" ? event.type : "";
   switch (type) {
@@ -200,12 +243,17 @@ export function mapPiEvent(event: Record<string, unknown>): MirrorAndActivity {
     }
     case "tool_execution_start": {
       const tool = typeof event.toolName === "string" ? event.toolName : (typeof event.name === "string" ? event.name : "tool");
-      return { mirrorLines: [`  ⚙ ${tool} …`], activity: { hookEvent: "PreToolUse", subtype: tool } };
+      const detail = MIRROR_TOOL_DETAIL ? summarizeToolArgs(event.args) : "";
+      return {
+        mirrorLines: [`  ⚙ ${tool}${detail ? ` ${detail}` : ""} …`],
+        activity: { hookEvent: "PreToolUse", subtype: tool },
+      };
     }
     case "tool_execution_end": {
       const tool = typeof event.toolName === "string" ? event.toolName : (typeof event.name === "string" ? event.name : "tool");
       const failed = event.isError === true || event.error != null;
-      return { mirrorLines: [`  ⚙ ${tool} ${failed ? "FAILED" : "done"}`] };
+      const detail = MIRROR_TOOL_DETAIL && !failed ? summarizeToolResult(event.result) : "";
+      return { mirrorLines: [`  ⚙ ${tool} ${failed ? "FAILED" : "done"}${detail ? ` — ${detail}` : ""}`] };
     }
     case "queue_update":
       return { mirrorLines: [] };

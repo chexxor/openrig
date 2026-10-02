@@ -326,6 +326,24 @@ describe("mapPiEvent", () => {
     expect(failed.mirrorLines[0]).toContain("FAILED");
   });
 
+  it("mirrors tool-call arguments and a capped result preview", () => {
+    const start = mapPiEvent({ type: "tool_execution_start", toolName: "bash", args: { command: "rg -n TODO src" } });
+    expect(start.mirrorLines[0]).toContain("bash");
+    expect(start.mirrorLines[0]).toContain("command=rg -n TODO src");
+
+    const end = mapPiEvent({
+      type: "tool_execution_end",
+      toolName: "bash",
+      result: { content: [{ type: "text", text: "3 matches found" }] },
+    });
+    expect(end.mirrorLines[0]).toContain("done");
+    expect(end.mirrorLines[0]).toContain("3 matches found");
+
+    const fail = mapPiEvent({ type: "tool_execution_end", toolName: "bash", isError: true, result: "should-not-render" });
+    expect(fail.mirrorLines[0]).toContain("FAILED");
+    expect(fail.mirrorLines[0]).not.toContain("should-not-render");
+  });
+
   it("compaction and retry map to their honest states", () => {
     expect(mapPiEvent({ type: "compaction_start" }).activity).toEqual({ hookEvent: "active", subtype: "compaction" });
     expect(mapPiEvent({ type: "auto_retry_start" }).activity).toEqual({ hookEvent: "active", subtype: "auto_retry" });
