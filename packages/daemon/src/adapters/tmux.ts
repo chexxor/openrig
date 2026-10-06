@@ -528,6 +528,12 @@ export class TmuxAdapter {
       if (isNoServerError(err) || isTmuxTransportAbsentError(err)) {
         return { state: "transport_unavailable", cause: (err as Error).message };
       }
+      // psmux (Windows tmux shim): `has-session` exits non-zero with no tmux diagnostic for an
+      // absent session, whereas tmux prints the "can't find session" class. Treat a has-session
+      // failure on win32 as absence so seat stop/clean/fresh-launch are not blocked as indeterminate.
+      if (process.platform === "win32" && /has-session/.test((err as Error).message)) {
+        return { state: "absent" };
+      }
       throw err;
     }
   }
@@ -782,7 +788,10 @@ export class TmuxAdapter {
     } catch (err) {
       // tmux 3.7 says "no current client" when nothing is attached (and for a missing session, which the kill classifies).
       const message = err instanceof Error ? err.message : String(err);
-      if (!message.toLowerCase().includes("no current client")) return classifyWriteError(err);
+      const lower = message.toLowerCase();
+      // psmux (Windows tmux shim) rejects a session id here ("no session '$N'") where tmux accepts it;
+      // detaching is best-effort, so a missing/unsupported target must not abort the stop (the kill below runs).
+      if (!lower.includes("no current client") && !lower.includes("no session")) return classifyWriteError(err);
     }
     try {
       await this.run(["tmux", "kill-session", "-t", session],
