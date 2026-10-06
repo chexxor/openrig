@@ -317,9 +317,15 @@ function parsePaneLine(line: string): TmuxPane | null {
  *  bare id resolves against whichever server answers (defect 3 in
  *  docs/OPENRIG-PSMUX-DEFECTS.md). Real tmux accepts the qualified form too,
  *  so qualifying unconditionally is safe; only ids are ambiguous.
+ *
+ * Exported for unit tests: the psmux misdirection fix hinges on this mapping.
  */
-function qualifiedPaneTarget(sessionName: string, pane: TmuxPane): string {
+export function qualifiedPaneTarget(sessionName: string, pane: TmuxPane): string {
   if (!/^%\d+$/.test(pane.id)) return pane.id;
+  // Indexes can be absent on hand-constructed panes (older fixtures/partial
+  // observations); a bare id is unambiguous there, an "undefined" interpolation
+  // would not be.
+  if (!Number.isInteger(pane.windowIndex) || !Number.isInteger(pane.index)) return pane.id;
   return `=${sessionName}:${pane.windowIndex}.${pane.index}`;
 }
 
@@ -699,10 +705,14 @@ export class TmuxAdapter {
     // Staging runs the script via /bin/sh, which does not exist on native Windows
     // (psmux panes run PowerShell/cmd): a staged invocation there dies instantly
     // and the harness never starts, surfacing only as a runner-ready timeout.
-    // On win32 non-POSIX panes, send the raw command instead; when it exceeds the
-    // tty input bound the caller's launch_path_too_long fallback re-sends the
-    // shorter un-corrected command, which PowerShell runs fine.
-    const stagingWorks = process.platform !== "win32" || sourceInPane;
+    // On win32, stage only when the pane runs a known POSIX shell (fish included —
+    // it stages like the rest and gets its own syntax below); a Windows-native or
+    // unreadable pane gets the raw command, and when that exceeds the tty input
+    // bound the caller's launch_path_too_long fallback re-sends the shorter
+    // un-corrected command.
+    const POSIX_STAGING_SHELLS = ["bash", "zsh", "sh", "dash", "ksh", "fish"];
+    const stagingWorks = process.platform !== "win32"
+      || (paneShell !== "" && POSIX_STAGING_SHELLS.includes(paneShell));
     // No staging on win32 non-POSIX panes: keep `path` undefined so `invocation`
     // stays the raw command and the bounds check below governs it.
     let path = options.stageIfLong && stagingWorks && commandBytes <= 512 ? undefined
@@ -805,10 +815,22 @@ export class TmuxAdapter {
         if (!/^\$\d+$/.test(sessionId)) return { ok: false, code: "guard_target_unknown", message: "Cannot establish immutable session identity; no session killed." };
         const kill = async () => {
           const result = await this.killSessionUnchecked(sessionId);
-          if (result.ok) { this.freshProbes.delete(name); this.freshProbes.delete(pane); this.freshManaged.delete(name); }
+          if (result.ok) {
+            // Maps hold BARE ids; the handed-through target may be qualified
+            // (=session:w.p on psmux), so clean up via the stored association.
+            const stored = this.freshProbes.get(name);
+            this.freshProbes.delete(name);
+            if (stored) this.freshProbes.delete(stored);
+            this.freshManaged.delete(name);
+          }
           return result;
         };
-        if (this.freshProbes.get(name) === pane && !this.deliveryGuard!.maybeTarget(name) && !this.deliveryGuard!.maybeTarget(pane)) return kill();
+        // Fast-path an own freshly allocated probe by its session association;
+        // guardedInput already validated that the handed target IS that pane.
+        // The stored BARE id still gets a claim check: a foreign record that
+        // bound this pane mid-probe must refuse the kill (negative controls).
+        const storedProbePane = this.freshProbes.get(name);
+        if (storedProbePane && !this.deliveryGuard!.maybeTarget(name) && !this.deliveryGuard!.maybeTarget(storedProbePane)) return kill();
         return this.deliveryGuard!.input(this.freshManaged.get(name)?.nodeId ?? name, kill);
       }, true);
     }
