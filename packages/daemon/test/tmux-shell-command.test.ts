@@ -161,9 +161,16 @@ describe("shell launch transport", () => {
     expect(f.commands.some(command => command.endsWith("'Enter'"))).toBe(failure === "'Enter'");
   });
 
-  it.skipIf(onWin32)("refuses an oversized bootstrap path before writing or sending", async () => {
+  it("refuses an oversized bootstrap path before writing or sending", async () => {
     const f = fixture(undefined, "/tmp/" + "a".repeat(512));
-    expect(await f.adapter.sendShellCommand("pane", "codex")).toMatchObject({ ok: false, code: "launch_path_too_long" });
+    // POSIX: the staging PATH itself exceeds the input bound, so the refusal
+    // fires before the script is written. win32 has no staging (defect-2/3
+    // fix): the same refusal guards an oversized RAW command (>1024B under
+    // stageIfLong) before any write or terminal input.
+    const win32 = process.platform === "win32";
+    const command = win32 ? "x".repeat(1100) : "codex";
+    expect(await f.adapter.sendShellCommand("pane", command, undefined, win32 ? { stageIfLong: true } : undefined))
+      .toMatchObject({ ok: false, code: "launch_path_too_long" });
     expect(f.fileOps.writeFile).not.toHaveBeenCalled();
     expect(f.commands).toEqual([]);
   });
@@ -179,7 +186,9 @@ describe("shell launch transport", () => {
     expect(f.commands.at(-1)).toBe("tmux send-keys -t 'pane' 'Enter'");
   });
 
-  it.skipIf(onWin32)("refuses a 1024-byte Pi command when its staged invocation exceeds the bound", async () => {
+  it("refuses a 1024-byte Pi command when its staged invocation exceeds the bound", async () => {
+    // Passes on both platforms: POSIX refuses the oversized staged invocation;
+    // win32 refuses the equally oversized raw command at the same bound.
     const f = fixture(undefined, "/tmp/" + "a".repeat(512));
     const command = "é".repeat(512);
     expect(Buffer.byteLength(command, "utf8")).toBe(1024);
